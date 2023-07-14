@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #222222;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            animation: colorChange 3s infinite;
+            flex-direction: column;
+        }
+
+        h2 {
+            animation: fadeIn 2s;
+            margin-bottom: 50px;
+        }
+
+        p {
+            font-size: 48px;
+            text-align: center;
+            animation: fadeIn 3s;
+        }
+
+
+        #sky {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            background: #87CEEB;
+            /* Céu azul */
+        }
+
+        .cloud {
+            position: absolute;
+            bottom: 0;
+            opacity: 0.6;
+            animation: move-cloud 1s linear infinite;
+        }
+
+        @keyframes move-cloud {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes colorChange {
+            0% {
+                color: #ffffff;
+            }
+
+            50% {
+                color: #dddddd;
+            }
+
+            100% {
+                color: #ffffff;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Velocidade do Vento</h2>
+
+    <p id="demo"></p>
+
+    <div id="sky"></div>
+
+
+    <script>
+        // função para buscar e exibir a velocidade do vento
+        function fetchWindSpeed() {
+            fetch('http://192.168.1.104:8000/wind_velocity')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById("demo").innerHTML = data.velocity;
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        }
+
+
+        // chamando a função ao carregar a página
+        window.onload = function () {
+            fetchWindSpeed();
+            setInterval(fetchWindSpeed, 5000);  // fetch wind speed every 5 seconds
+        }
+
+
+
+        let animation_velocity = 1.0; // velocidade inicial
+
+        // SVG para uma nuvem
+        let cloudSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="50px" height="50px"><path d="M0 0h24v24H0z" fill="none"/><path d="M15 18c3.314 0 6-2.239 6-5a6 6 0 0 0-6-6h-1V6a4 4 0 0 0-4-4 4 4 0 0 0-4 4v1H7a5 5 0 0 0-5 5c0 2.761 2.686 5 5.996 5H15zm0 2H6a7 7 0 0 1-7-7c0-3.664 2.887-6.655 6.507-6.938A6.003 6.003 0 0 1 3 11a8 8 0 0 0 8 8h4a8 8 0 0 0 8-8c0-2.894-1.504-5.408-3.757-6.643C19.935 4.786 22 7.27 22 10a7 7 0 0 1-7 7v3h-2v-2z"/></svg>`;
+
+        // Cria 10 nuvens
+        for (let i = 0; i < 10; i++) {
+            let cloud = document.createElement('div');
+            cloud.className = 'cloud';
+            cloud.style.left = `${i * 10}%`;
+            cloud.style.top = `${Math.random() * 80}%`; // Posição vertical aleatória
+            cloud.style.animationDuration = `${5 + Math.random() * 5}s`; // Duração da animação aleatória
+            cloud.innerHTML = cloudSVG;
+            document.getElementById('sky').appendChild(cloud);
+        }
+
+        // Função para atualizar a velocidade da animação
+        function updateAnimationSpeed() {
+            let clouds = document.getElementsByClassName('cloud');
+            for (let cloud of clouds) {
+                cloud.style.animationDuration = `${animation_velocity}s`;
+            }
+        }
+
+        // Atualiza a velocidade da animação a cada segundo
+        setInterval(() => {
+            animation_velocity = ... // atualiza a variável animation_velocity
+        updateAnimationSpeed();
+}, 1000);
+
+    </script>
+
+</body>
+
+</html>
